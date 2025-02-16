@@ -77,6 +77,7 @@ export default function Home() {
   function tickTacCellClickHandler(cell:Cell){   
 
     const newBoard = board.map(cell => ({ ...cell }));
+    const newGameEntries:string[] = gameEntries.map(cell => ( cell ));
 
     const userXRowCol:UserMoveRecord = Object.assign(userX);
     const userORowCol:UserMoveRecord = Object.assign(userO);
@@ -104,7 +105,8 @@ export default function Home() {
         setStatus("playerXTurn");
       }
       newBoard[cell.id-1].isClicked = true;
-      setGameEntries((old)=>[...old,`${cell.row}${cell.col}`]);
+      newGameEntries.push(`${cell.row}${cell.col}`);
+      setGameEntries(newGameEntries);
       setUserX(userXRowCol);
       setUserO(userORowCol);
 
@@ -112,10 +114,10 @@ export default function Home() {
       console.log("Already clicked");
     }
 
-    checkWinner(userXRowCol,userORowCol,newBoard);
+    checkWinner(userXRowCol,userORowCol,newBoard,newGameEntries);
   }
 
-  function checkWinner(userXRowCol: UserMoveRecord, userORowCol: UserMoveRecord,newBoard:Cell[]) {
+  function checkWinner(userXRowCol: UserMoveRecord, userORowCol: UserMoveRecord,newBoard:Cell[],newGameEntries:string[]) {
     const checkWin = (rows: number[], cols: number[], diagonals: number[]): [boolean , number[]] => {
       let wonCells:number[] = [];
       if(rows.some((row) => row === 3)){
@@ -153,7 +155,7 @@ export default function Home() {
       newBoard[oWonCells[2]-1].win = true;
     }
 
-    if(gameEntries.length===9){
+    if(newGameEntries.length === 9){
       setStatus("draw");
     }
 
@@ -209,7 +211,9 @@ export default function Home() {
           type="reset">
           Reset
         </button>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="relative grid grid-cols-3 gap-2">
+          {status === 'draw' || status === 'playerXWon' || status === 'playerOWon' ?
+            <div className="absolute top-0 left-0 right-0 size-full transform origin-left opacity-60 backdrop-blur-2xl flex flex-col justify-center items-center"></div> :null}
           {board.map((cell) => {
             return (
               <button

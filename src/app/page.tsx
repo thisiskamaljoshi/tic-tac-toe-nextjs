@@ -1,68 +1,27 @@
-"use client";
-import { useState } from "react";
+import Link from "next/link";
 
 export default function Home() {
-
-  type UserSymbol = "X" | "O" | null;
-
-  type Cell = {
-    id: number;
-    row: number;
-    col: number;
-    isClicked: boolean;
-    userSymbol: UserSymbol;
-  };
-
-  const [board, setBoard] = useState<Cell[]>([
-    { id: 1, row: 1, col: 1, isClicked: false, userSymbol: null },
-    { id: 2, row: 1, col: 2, isClicked: false, userSymbol: null },
-    { id: 3, row: 1, col: 3, isClicked: false, userSymbol: null },
-    { id: 4, row: 2, col: 1, isClicked: false, userSymbol: null },
-    { id: 5, row: 2, col: 2, isClicked: false, userSymbol: null },
-    { id: 6, row: 2, col: 3, isClicked: false, userSymbol: null },
-    { id: 7, row: 3, col: 1, isClicked: false, userSymbol: null },
-    { id: 8, row: 3, col: 2, isClicked: false, userSymbol: null },
-    { id: 9, row: 3, col: 3, isClicked: false, userSymbol: null },
-  ]);
-
-  const [gameEntries,setGameEntries] = useState<string[]>([]);
-
-  function tickTacCellClickHandler(cell:Cell){    
-
-    const newBoard = [...board];
-
-    if(!cell.isClicked){
-      if(gameEntries.length %2 === 0){
-        newBoard[cell.id-1].userSymbol = "X";
-      }else{
-        newBoard[cell.id-1].userSymbol = "O";
-      }
-      newBoard[cell.id-1].isClicked = true;
-      setGameEntries((old)=>[...old,`${cell.row}${cell.col}`]);
-      setBoard(newBoard);
-    }else{
-      console.log("Already clicked");
-    }
-  }
-
-  console.log(gameEntries,"gameEntries");
-  console.log(board,"board");
-
   return (
-    <div className="h-screen">
-      <div className="flex flex-col items-center gap-4 p-4 h-full">
-        <h1 className="text-2xl font-bold">Tic Tac Toe</h1>
-        <div className="grid grid-cols-3 gap-2">
-          {board.map((cell) => {
-            return (
-              <button
-                key={cell.id}
-                className="size-24 md:size-28 lg:size-32  flex items-center justify-center border border-gray-500 text-2xl font-bold hover:bg-gray-200"
-                onClick={()=>tickTacCellClickHandler(cell)}
-              >{cell.userSymbol}</button>
-            );
-          })}
-        </div>
+    <div 
+      className="min-h-screen p-6 bg-gray-100 bg-cover bg-center relative" 
+      style={{ backgroundImage: "url('/torben-gettermann.jpg')" }}
+    >
+      {/* Adding an overlay behind the content */}
+      <div className="absolute inset-0 bg-black opacity-20 z-0"></div>
+
+      <h1 className="text-2xl font-bold text-center text-white mb-6 drop-shadow-lg z-10 relative">
+        Tic Tac Toe Games
+      </h1>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 z-10 relative">
+        <Link href="/first-variation" className="block">
+          {/* Wrap the entire card inside Link */}
+          <div className="bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-xl transition cursor-pointer max-w-xs mx-auto">
+            <div className="p-4 text-center">
+              <h2 className="text-lg font-semibold">First Variation</h2>
+            </div>
+          </div>
+        </Link>
       </div>
     </div>
   );

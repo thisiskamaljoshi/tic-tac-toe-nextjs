@@ -13,10 +13,10 @@ export default function Home() {
       </h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 z-10 relative">
-        <Link href="/first-variation" className="block">
+        <Link href="/1d-array-implementation" className="block">
           <div className="bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-xl transition cursor-pointer max-w-xs mx-auto">
             <div className="p-4 text-center">
-              <h2 className="text-lg font-semibold">First Variation</h2>
+              <h2 className="text-lg font-semibold">1D Array Implementation</h2>
             </div>
           </div>
         </Link>

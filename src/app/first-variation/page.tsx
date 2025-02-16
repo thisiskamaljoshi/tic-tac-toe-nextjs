@@ -3,6 +3,10 @@ import { useState } from "react";
 
 export default function Home() {
 
+  type WinningCombinations = {
+    [key: string]: [number, number, number];
+  }
+
   type UserSymbol = "X" | "O" | null;
 
   type Cell = {
@@ -11,6 +15,7 @@ export default function Home() {
     col: number;
     isClicked: boolean;
     userSymbol: UserSymbol;
+    win: boolean;
   };
 
   type UserMoveRecord ={
@@ -21,16 +26,27 @@ export default function Home() {
 
   type GameStatus = 'waiting' | 'playerXTurn' | 'playerOTurn' | 'draw' | 'playerXWon' | 'playerOWon';
 
+  const winningCombinations:WinningCombinations = {
+    row1: [1, 2, 3],
+    row2: [4, 5, 6],
+    row3: [7, 8, 9],
+    col1: [1, 4, 7],
+    col2: [2, 5, 8],
+    col3: [3, 6, 9],
+    diag1: [1, 5, 9],
+    diag2: [3, 5, 7],
+  };
+
   const [board, setBoard] = useState<Cell[]>([
-    { id: 1, row: 1, col: 1, isClicked: false, userSymbol: null },
-    { id: 2, row: 1, col: 2, isClicked: false, userSymbol: null },
-    { id: 3, row: 1, col: 3, isClicked: false, userSymbol: null },
-    { id: 4, row: 2, col: 1, isClicked: false, userSymbol: null },
-    { id: 5, row: 2, col: 2, isClicked: false, userSymbol: null },
-    { id: 6, row: 2, col: 3, isClicked: false, userSymbol: null },
-    { id: 7, row: 3, col: 1, isClicked: false, userSymbol: null },
-    { id: 8, row: 3, col: 2, isClicked: false, userSymbol: null },
-    { id: 9, row: 3, col: 3, isClicked: false, userSymbol: null },
+    { id: 1, row: 1, col: 1, isClicked: false, userSymbol: null , win:false },
+    { id: 2, row: 1, col: 2, isClicked: false, userSymbol: null , win:false },
+    { id: 3, row: 1, col: 3, isClicked: false, userSymbol: null , win:false },
+    { id: 4, row: 2, col: 1, isClicked: false, userSymbol: null , win:false },
+    { id: 5, row: 2, col: 2, isClicked: false, userSymbol: null , win:false },
+    { id: 6, row: 2, col: 3, isClicked: false, userSymbol: null , win:false },
+    { id: 7, row: 3, col: 1, isClicked: false, userSymbol: null , win:false },
+    { id: 8, row: 3, col: 2, isClicked: false, userSymbol: null , win:false },
+    { id: 9, row: 3, col: 3, isClicked: false, userSymbol: null , win:false },
   ]);
 
   const [gameEntries,setGameEntries] = useState<string[]>([]);
@@ -60,7 +76,7 @@ export default function Home() {
 
   function tickTacCellClickHandler(cell:Cell){   
 
-    const newBoard = [...board];
+    const newBoard = board.map(cell => ({ ...cell }));
 
     const userXRowCol:UserMoveRecord = Object.assign(userX);
     const userORowCol:UserMoveRecord = Object.assign(userO);
@@ -89,7 +105,6 @@ export default function Home() {
       }
       newBoard[cell.id-1].isClicked = true;
       setGameEntries((old)=>[...old,`${cell.row}${cell.col}`]);
-      setBoard(newBoard);
       setUserX(userXRowCol);
       setUserO(userORowCol);
 
@@ -97,43 +112,65 @@ export default function Home() {
       console.log("Already clicked");
     }
 
-    checkWinner(userXRowCol,userORowCol);
+    checkWinner(userXRowCol,userORowCol,newBoard);
   }
 
-  function checkWinner(userXRowCol: UserMoveRecord, userORowCol: UserMoveRecord) {
-    const checkWin = (rows: number[], cols: number[], diagonals: number[]): boolean => {
-      return rows.some((row) => row === 3) || 
+  function checkWinner(userXRowCol: UserMoveRecord, userORowCol: UserMoveRecord,newBoard:Cell[]) {
+    const checkWin = (rows: number[], cols: number[], diagonals: number[]): [boolean , number[]] => {
+      let wonCells:number[] = [];
+      if(rows.some((row) => row === 3)){
+        const row = rows.findIndex((row) => row === 3);
+        wonCells = winningCombinations[`row${row+1}`];
+      }else if(cols.some((col) => col === 3)){
+        const col = cols.findIndex((col) => col === 3);
+        wonCells = winningCombinations[`col${col+1}`];
+      }else if(diagonals.some((diag) => diag === 3)){
+        const diag = diagonals.findIndex((diag) => diag === 3);
+        wonCells = winningCombinations[`diag${diag+1}`];
+      }
+      return [(rows.some((row) => row === 3) || 
              cols.some((col) => col === 3) || 
-             diagonals.some((diag) => diag === 3);
+             diagonals.some((diag) => diag === 3)),wonCells];
     };
   
     const { rows: userXRows, columns: userXCols, diagonals: userXDiag } = userXRowCol;
     const { rows: userORows, columns: userOCols, diagonals: userODiag } = userORowCol;
+
+    const [isXWon, xWonCells] = checkWin(userXRows, userXCols, userXDiag);
+    const [isOWon, oWonCells] = checkWin(userORows, userOCols, userODiag);
   
-    if (checkWin(userXRows, userXCols, userXDiag)) {
+    if (isXWon) {
       setStatus("playerXWon");
+      newBoard[xWonCells[0]-1].win = true;
+      newBoard[xWonCells[1]-1].win = true;
+      newBoard[xWonCells[2]-1].win = true;
     }
   
-    if (checkWin(userORows, userOCols, userODiag)) {
+    if (isOWon) {
       setStatus("playerOWon");
+      newBoard[oWonCells[0]-1].win = true;
+      newBoard[oWonCells[1]-1].win = true;
+      newBoard[oWonCells[2]-1].win = true;
     }
 
     if(gameEntries.length===9){
       setStatus("draw");
     }
+
+    setBoard(newBoard);
   }
 
   const resetGame = () => {
     setBoard([
-      { id: 1, row: 1, col: 1, isClicked: false, userSymbol: null },
-      { id: 2, row: 1, col: 2, isClicked: false, userSymbol: null },
-      { id: 3, row: 1, col: 3, isClicked: false, userSymbol: null },
-      { id: 4, row: 2, col: 1, isClicked: false, userSymbol: null },
-      { id: 5, row: 2, col: 2, isClicked: false, userSymbol: null },
-      { id: 6, row: 2, col: 3, isClicked: false, userSymbol: null },
-      { id: 7, row: 3, col: 1, isClicked: false, userSymbol: null },
-      { id: 8, row: 3, col: 2, isClicked: false, userSymbol: null },
-      { id: 9, row: 3, col: 3, isClicked: false, userSymbol: null },
+      { id: 1, row: 1, col: 1, isClicked: false, userSymbol: null , win:false },
+      { id: 2, row: 1, col: 2, isClicked: false, userSymbol: null , win:false },
+      { id: 3, row: 1, col: 3, isClicked: false, userSymbol: null , win:false },
+      { id: 4, row: 2, col: 1, isClicked: false, userSymbol: null , win:false },
+      { id: 5, row: 2, col: 2, isClicked: false, userSymbol: null , win:false },
+      { id: 6, row: 2, col: 3, isClicked: false, userSymbol: null , win:false },
+      { id: 7, row: 3, col: 1, isClicked: false, userSymbol: null , win:false },
+      { id: 8, row: 3, col: 2, isClicked: false, userSymbol: null , win:false },
+      { id: 9, row: 3, col: 3, isClicked: false, userSymbol: null , win:false },
     ]);
   
     setGameEntries([]);
@@ -177,9 +214,11 @@ export default function Home() {
             return (
               <button
                 key={cell.id}
-                className="size-24 md:size-28 lg:size-32  flex items-center justify-center border border-gray-500 text-2xl font-bold hover:bg-gray-200"
-                onClick={()=>tickTacCellClickHandler(cell)}
-              >{cell.userSymbol}</button>
+                className={`size-24 md:size-28 lg:size-32 flex items-center justify-center border border-gray-500 text-2xl font-bold hover:bg-gray-200 ${cell.win ? 'text-green-500' : 'text-black'}`}
+                onClick={() => tickTacCellClickHandler(cell)}
+              >
+                {cell.userSymbol}
+              </button>
             );
           })}
         </div>

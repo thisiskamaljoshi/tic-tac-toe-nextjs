@@ -20,13 +20,6 @@ export default function Home() {
             </div>
           </div>
         </Link>
-        <Link href="/bitwise-operations-variation" className="block">
-          <div className="bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-xl transition cursor-pointer max-w-xs mx-auto">
-            <div className="p-4 text-center">
-              <h2 className="text-lg font-semibold">Bitwise Operations Variation</h2>
-            </div>
-          </div>
-        </Link>
       </div>
     </div>
   );
